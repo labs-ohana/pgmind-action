@@ -1,0 +1,17 @@
+name: "PGMind Diagnostics"
+description: "Run PostgreSQL diagnostics using pgmind"
+author: "OhanaLabs"
+
+inputs:
+  database_url:
+    description: "PostgreSQL connection string"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        curl -L -o pgmind https://github.com/labs-ohana/pgmind/releases/latest/download/pgmind-linux-x86_64
+        chmod +x pgmind
+        ./pgmind monitor
+      shell: bash
