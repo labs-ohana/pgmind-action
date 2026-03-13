@@ -1,17 +1,58 @@
-name: "PGMind Diagnostics"
-description: "Run PostgreSQL diagnostics using pgmind"
-author: "OhanaLabs"
+name: "PGMind"
+description: "Run deterministic PostgreSQL diagnostics with pgmind via Docker Action."
 
 inputs:
-  database_url:
-    description: "PostgreSQL connection string"
+  command:
+    description: "pgmind command to run (check|monitor|ask|explain-file)."
     required: true
+  args:
+    description: "Additional arguments passed to the selected command."
+    required: false
+    default: ""
+  runtime_profile:
+    description: "Runtime profile exported as PGMIND_RUNTIME_PROFILE."
+    required: false
+    default: "local"
+  db_dsn:
+    description: "PostgreSQL DSN (recommend passing from GitHub Secrets)."
+    required: false
+    default: ""
+  llm_enabled:
+    description: "Enable optional LLM path (true|false)."
+    required: false
+    default: "false"
+  fail_on_findings:
+    description: "When true, fail monitor runs that finish with warn/critical/error status."
+    required: false
+    default: "false"
+  release_tag:
+    description: "Release tag to resolve pgmind binary (defaults to action bundled tag)."
+    required: false
+    default: ""
+  release_repository:
+    description: "Repository owner/name for release lookup (defaults to action repository)."
+    required: false
+    default: ""
+  github_token:
+    description: "Optional token for private release access (recommend: github.token)."
+    required: false
+    default: ""
+
+outputs:
+  exit_code:
+    description: "Exit code returned by pgmind execution."
+  summary_path:
+    description: "Path to generated summary file when applicable."
+  artifacts_path:
+    description: "Path to generated artifacts directory when applicable."
 
 runs:
-  using: "composite"
-  steps:
-    - run: |
-        curl -L -o pgmind https://github.com/labs-ohana/pgmind/releases/latest/download/pgmind-linux-x86_64
-        chmod +x pgmind
-        ./pgmind monitor
-      shell: bash
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - "${{ inputs.command }}"
+    - "${{ inputs.args }}"
+
+branding:
+  icon: "activity"
+  color: "blue"
